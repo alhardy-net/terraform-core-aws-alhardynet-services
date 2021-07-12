@@ -3,8 +3,8 @@ resource "aws_ecs_task_definition" "service-customers-api" {
   requires_compatibilities = [
     "FARGATE",
   ]
-  execution_role_arn = "arn:aws:iam::171101346296:role/EcsClusteralhardynetDefaultTaskRole"
-  task_role_arn      = "arn:aws:iam::171101346296:role/EcsClusteralhardynetDefaultTaskRole"
+  execution_role_arn = "arn:aws:iam::${var.aws_account_id}:role/EcsClusteralhardynetDefaultTaskRole"
+  task_role_arn      = "arn:aws:iam::${var.aws_account_id}:role/EcsClusteralhardynetDefaultTaskRole"
   network_mode       = "awsvpc"
   cpu                = 256
   memory             = 512
