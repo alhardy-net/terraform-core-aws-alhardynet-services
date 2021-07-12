@@ -59,7 +59,7 @@ resource "aws_alb_listener_rule" "rule" {
 
   condition {
     host_header {
-      values = ["${lower(local.service_name)}.dev.alhardy.net"]
+      values = [local.aws_alb_listener_rule_host_header]
     }
   }
 }
