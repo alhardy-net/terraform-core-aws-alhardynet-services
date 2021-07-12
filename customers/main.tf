@@ -67,7 +67,7 @@ resource "aws_alb_listener_rule" "rule" {
 resource "aws_security_group" "app_security_group" {
   name        = "${local.service_name}-SG"
   description = "Security group for customer api to communicate in and out"
-  vpc_id      = "vpc-0ce11926c4fd3dc8b"
+  vpc_id      = data.terraform_remote_state.vpc.outputs.vpc_id
 
   ingress {
     from_port   = 80
