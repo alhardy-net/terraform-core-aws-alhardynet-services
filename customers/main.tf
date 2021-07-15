@@ -50,7 +50,7 @@ resource "aws_alb_target_group" "group" {
 
 resource "aws_alb_listener_rule" "rule" {
   listener_arn = data.terraform_remote_state.ecs.outputs.ecs_cluster_alb_https_listener_arn
-  priority     = 100
+  priority     = 200
 
   action {
     type             = "forward"
