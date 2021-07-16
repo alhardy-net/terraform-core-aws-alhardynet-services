@@ -95,9 +95,9 @@ resource "aws_ecs_service" "service" {
   desired_count   = 1
 
   network_configuration {
-    subnets          = data.terraform_remote_state.vpc.outputs.public_subnets // TODO: Should be private subnets
+    subnets          = data.terraform_remote_state.vpc.outputs.private_application_subnets
     security_groups  = [aws_security_group.app_security_group.id]
-    assign_public_ip = true # TODO: Should be false. Currently required to download image via ecr?
+    assign_public_ip = false
   }
 
   load_balancer {
