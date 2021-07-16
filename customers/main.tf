@@ -15,7 +15,7 @@ resource "aws_ecs_task_definition" "service-customers-api" {
       essential = true
       portMappings = [
         {
-          containerPort = 80
+          containerPort = local.container_port
           hostPort      = 80
         }
       ]
@@ -23,44 +23,6 @@ resource "aws_ecs_task_definition" "service-customers-api" {
   ])
   lifecycle {
     ignore_changes = all
-  }
-}
-
-resource "aws_alb_target_group" "group" {
-  name        = "${local.service_name}-TG"
-  port        = 80
-  protocol    = "HTTP"
-  vpc_id      = data.terraform_remote_state.vpc.outputs.vpc_id
-  target_type = "ip"
-
-  health_check {
-    path                = "/ping"
-    protocol            = "HTTP"
-    matcher             = "200"
-    interval            = "60"
-    timeout             = "30"
-    unhealthy_threshold = "3"
-    healthy_threshold   = "3"
-  }
-
-  tags = {
-    Name = "${local.service_name}-TG"
-  }
-}
-
-resource "aws_alb_listener_rule" "rule" {
-  listener_arn = data.terraform_remote_state.ecs.outputs.ecs_cluster_alb_https_listener_arn
-  priority     = 200
-
-  action {
-    type             = "forward"
-    target_group_arn = aws_alb_target_group.group.arn
-  }
-
-  condition {
-    host_header {
-      values = [local.aws_alb_listener_rule_host_header]
-    }
   }
 }
 
@@ -99,22 +61,42 @@ resource "aws_ecs_service" "service" {
     security_groups  = [aws_security_group.app_security_group.id]
     assign_public_ip = false
   }
-
-  load_balancer {
-    target_group_arn = aws_alb_target_group.group.arn
-    container_name   = local.container_name
-    container_port   = 80
-  }
+  
   deployment_controller {
     type = "ECS"
   }
+  
   capacity_provider_strategy {
     base              = 0
     capacity_provider = "FARGATE"
     weight            = 100
   }
+  
+  service_registries {
+    registry_arn = aws_service_discovery_service.this.arn
+    container_name = local.container_name
+  }
 
   lifecycle {
     ignore_changes = [task_definition]
+  }
+}
+
+resource "aws_service_discovery_service" "this" {
+  name = local.service_name
+
+  dns_config {
+    namespace_id = data.terraform_remote_state.cloud_map.outputs.namespace_id
+
+    dns_records {
+      ttl  = 10
+      type = "A"
+    }
+
+    routing_policy = "MULTIVALUE"
+  }
+
+  health_check_custom_config {
+    failure_threshold = 1
   }
 }
