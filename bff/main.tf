@@ -105,6 +105,9 @@ resource "aws_ecs_service" "service" {
     container_name   = local.container_name
     container_port   = 80
   }
+
+  health_check_grace_period_seconds = var.health_check_grace_period_seconds
+  
   deployment_controller {
     type = "ECS"
   }
