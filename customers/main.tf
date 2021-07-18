@@ -86,7 +86,7 @@ resource "aws_service_discovery_service" "this" {
   name = local.service_name
 
   dns_config {
-    namespace_id = data.terraform_remote_state.cloud_map.outputs.namespace_id
+    namespace_id = data.terraform_remote_state.ecs.outputs.namespace_id
 
     dns_records {
       ttl  = 10
