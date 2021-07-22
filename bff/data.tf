@@ -18,7 +18,7 @@ data "terraform_remote_state" "ecs" {
   }
 }
 
-data "terraform_remote_state" "customers-service" {
+data "terraform_remote_state" "customers_service" {
   backend = "remote"
   config = {
     organization = "bytebox"

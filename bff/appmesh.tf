@@ -3,6 +3,12 @@ resource "aws_appmesh_virtual_node" "this" {
   mesh_name = data.terraform_remote_state.ecs.outputs.appmesh_name
   
   spec {
+    backend {
+      virtual_service {
+        virtual_service_name = data.terraform_remote_state.customers_service.outputs.virtual_service_name
+      }
+    }
+    
     listener {
       port_mapping {
         port     = "80"
@@ -47,11 +53,6 @@ resource "aws_appmesh_gateway_route" "route" {
   mesh_name            = data.terraform_remote_state.ecs.outputs.appmesh_name
   
   spec {
-    backend {
-      virtual_service {
-        virtual_service_name = data.terraform_remote_state.customers-service.virtual_service_name
-      }
-    }
     http_route {
       action {
         target {
