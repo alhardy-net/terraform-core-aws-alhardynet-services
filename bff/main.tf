@@ -26,44 +26,6 @@ resource "aws_ecs_task_definition" "this" {
   }
 }
 
-resource "aws_alb_target_group" "group" {
-  name        = "${local.service_name}-TG"
-  port        = 80
-  protocol    = "HTTP"
-  vpc_id      = data.terraform_remote_state.vpc.outputs.vpc_id
-  target_type = "ip"
-
-  health_check {
-    path                = "/ping"
-    protocol            = "HTTP"
-    matcher             = "200"
-    interval            = "60"
-    timeout             = "30"
-    unhealthy_threshold = "3"
-    healthy_threshold   = "3"
-  }
-
-  tags = {
-    Name = "${local.service_name}-TG"
-  }
-}
-
-resource "aws_alb_listener_rule" "rule" {
-  listener_arn = data.terraform_remote_state.ecs.outputs.ecs_cluster_alb_https_listener_arn
-  priority     = 100
-
-  action {
-    type             = "forward"
-    target_group_arn = aws_alb_target_group.group.arn
-  }
-
-  condition {
-    host_header {
-      values = [local.aws_alb_listener_rule_host_header]
-    }
-  }
-}
-
 resource "aws_security_group" "app_security_group" {
   name        = "${local.service_name}-SG"
   description = "Security group for service to communicate in and out"
@@ -100,14 +62,11 @@ resource "aws_ecs_service" "service" {
     assign_public_ip = false
   }
 
-  load_balancer {
-    target_group_arn = aws_alb_target_group.group.arn
-    container_name   = local.container_name
-    container_port   = 80
+  service_registries {
+    registry_arn = aws_service_discovery_service.this.arn
+    container_name = local.container_name
   }
 
-  health_check_grace_period_seconds = var.health_check_grace_period_seconds
-  
   deployment_controller {
     type = "ECS"
   }
@@ -119,5 +78,24 @@ resource "aws_ecs_service" "service" {
 
   lifecycle {
     ignore_changes = [task_definition]
+  }
+}
+
+resource "aws_service_discovery_service" "this" {
+  name = local.service_name
+
+  dns_config {
+    namespace_id = data.terraform_remote_state.ecs.outputs.namespace_id
+
+    dns_records {
+      ttl  = 10
+      type = "A"
+    }
+
+    routing_policy = "MULTIVALUE"
+  }
+
+  health_check_custom_config {
+    failure_threshold = 1
   }
 }
