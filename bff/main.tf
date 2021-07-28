@@ -1,5 +1,14 @@
+data "aws_ecs_task_definition" "existing" {
+  task_definition = local.task_definition_family
+} 
+
+data "aws_ecs_container_definition" "existing" {
+  container_name = local.container_name
+  task_definition = local.task_definition_family
+}
+
 resource "aws_ecs_task_definition" "this" {
-  family = "service-bff"
+  family = local.task_definition_family
   requires_compatibilities = [
     "FARGATE",
   ]
@@ -11,7 +20,7 @@ resource "aws_ecs_task_definition" "this" {
   container_definitions = jsonencode([
     {
       name      = local.container_name
-      image     = "particule/helloworld"
+      image     = data.aws_ecs_container_definition.existing.image
       essential = true
       portMappings = [
         {
@@ -21,9 +30,6 @@ resource "aws_ecs_task_definition" "this" {
       ]
     }
   ])
-  lifecycle {
-    ignore_changes = all
-  }
 }
 
 resource "aws_security_group" "app_security_group" {
@@ -53,7 +59,7 @@ resource "aws_security_group" "app_security_group" {
 resource "aws_ecs_service" "service" {
   name            = local.service_name
   cluster         = data.terraform_remote_state.ecs.outputs.ecs_cluster_name
-  task_definition = aws_ecs_task_definition.this.arn
+  task_definition = "${aws_ecs_task_definition.this.family}:${max(aws_ecs_task_definition.this.revision, data.aws_ecs_task_definition.existing.revision)}"
   desired_count   = 1
 
   network_configuration {
@@ -74,10 +80,6 @@ resource "aws_ecs_service" "service" {
     base              = 0
     capacity_provider = "FARGATE"
     weight            = 100
-  }
-
-  lifecycle {
-    ignore_changes = [task_definition]
   }
 }
 
