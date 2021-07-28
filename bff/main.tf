@@ -65,7 +65,7 @@ resource "aws_ecs_task_definition" "this" {
       environment = [
         {
           name  = "APPMESH_VIRTUAL_NODE_NAME"
-          value = "mesh/${data.terraform_remote_state.ecs.outputs.appmesh_name}/virtualGateway/${local.service_name}-node"
+          value = "mesh/${data.terraform_remote_state.ecs.outputs.appmesh_name}/virtualNode/${local.service_name}-node"
         },
         {
           name  = "AWS_XRAY_DAEMON_ADDRESS"
