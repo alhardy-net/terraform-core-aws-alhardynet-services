@@ -1,14 +1,14 @@
 resource "aws_appmesh_virtual_node" "this" {
   name      = "${local.service_name}-node"
   mesh_name = data.terraform_remote_state.ecs.outputs.appmesh_name
-  
+
   spec {
     backend {
       virtual_service {
         virtual_service_name = data.terraform_remote_state.customers_service.outputs.virtual_service_name
       }
     }
-    
+
     listener {
       port_mapping {
         port     = "80"
@@ -24,7 +24,7 @@ resource "aws_appmesh_virtual_node" "this" {
         interval_millis     = 5000
       }
     }
-    
+
     service_discovery {
       aws_cloud_map {
         service_name   = aws_service_discovery_service.this.name
@@ -37,7 +37,7 @@ resource "aws_appmesh_virtual_node" "this" {
 resource "aws_appmesh_virtual_service" "this" {
   name      = "${local.service_name}.${data.terraform_remote_state.ecs.outputs.service_discovery_private_dns_namespace_name}"
   mesh_name = data.terraform_remote_state.ecs.outputs.appmesh_name
-  
+
   spec {
     provider {
       virtual_node {
@@ -51,7 +51,7 @@ resource "aws_appmesh_gateway_route" "route" {
   name                 = "${local.service_name}-route"
   virtual_gateway_name = data.terraform_remote_state.ecs.outputs.appmesh_virtual_gateway_name
   mesh_name            = data.terraform_remote_state.ecs.outputs.appmesh_name
-  
+
   spec {
     http_route {
       action {

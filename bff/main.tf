@@ -1,9 +1,9 @@
 data "aws_ecs_task_definition" "existing" {
   task_definition = local.task_definition_family
-} 
+}
 
 data "aws_ecs_container_definition" "existing" {
-  container_name = local.container_name
+  container_name  = local.container_name
   task_definition = local.task_definition_family
 }
 
@@ -17,6 +17,17 @@ resource "aws_ecs_task_definition" "this" {
   network_mode       = "awsvpc"
   cpu                = 256
   memory             = 512
+  proxy_configuration {
+    container_name = "envoy"
+    type           = "APPMESH"
+    properties = {
+      AppPorts         = local.app_port
+      EgressIgnoredIPs = "169.254.170.2,169.254.169.254"
+      IgnoredUID       = "1337"
+      ProxyEgressPort  = 15001
+      ProxyIngressPort = 15000
+    }
+  }
   container_definitions = jsonencode([
     {
       name      = local.container_name
@@ -24,10 +35,91 @@ resource "aws_ecs_task_definition" "this" {
       essential = true
       portMappings = [
         {
-          containerPort = 80
+          containerPort = local.app_port
           hostPort      = 80
         }
       ]
+      environment = [
+        {
+          name  = "ASPNETCORE_ENVIRONMENT"
+          value = "Development"
+        },
+        {
+          name  = "CustomerApiBaseAddress"
+          value = "http://customers-api.alhardynet.local"
+        }
+      ]
+      logConfiguration = {
+        logDriver = "awslogs"
+        secretOptions : null
+        options = {
+          awslogs-group         = "/ecs/service-bff"
+          awslogs-region        = var.aws_region
+          awslogs-stream-prefix = "ecs"
+        }
+      }
+    },
+    {
+      name = "envoy",
+      image = local.envoy_image
+      environment = [
+        {
+          name  = "APPMESH_VIRTUAL_NODE_NAME"
+          value = "mesh/${data.terraform_remote_state.ecs.outputs.appmesh_name}/virtualGateway/${local.service_name}-node"
+        },
+        {
+          name  = "AWS_XRAY_DAEMON_ADDRESS"
+          value = "xray-daemon:2000"
+        },
+        {
+          name  = "ENABLE_ENVOY_XRAY_TRACING"
+          value = "1"
+        },
+        {
+          name  = "ENVOY_LOG_LEVEL"
+          value = "info"
+        }
+      ]
+      healthCheck = {
+        retries = 3
+        command = [
+          "CMD-SHELL",
+          "curl -s http://localhost:9901/server_info | grep state | grep -q LIVE"
+        ]
+        timeout     = 2
+        interval    = 5
+        startPeriod = 10
+      }
+      user = "1337"
+      logConfiguration = {
+        logDriver = "awslogs"
+        secretOptions : null
+        options = {
+          awslogs-group         = "/ecs/service-bff"
+          awslogs-region        = var.aws_region
+          awslogs-stream-prefix = "ecs"
+        }
+      }
+    },
+    {
+      name  = "xray-daemon"
+      image = local.xray_image
+      portMappings = [
+        {
+          hostPort      = 2000
+          containerPort = 2000
+          protocol      = "udp"
+        }
+      ]
+      logConfiguration = {
+        logDriver = "awslogs"
+        secretOptions : null
+        options = {
+          awslogs-group         = "/ecs/service-bff"
+          awslogs-region        = var.aws_region
+          awslogs-stream-prefix = "ecs"
+        }
+      }
     }
   ])
 }
@@ -69,7 +161,7 @@ resource "aws_ecs_service" "service" {
   }
 
   service_registries {
-    registry_arn = aws_service_discovery_service.this.arn
+    registry_arn   = aws_service_discovery_service.this.arn
     container_name = local.container_name
   }
 
