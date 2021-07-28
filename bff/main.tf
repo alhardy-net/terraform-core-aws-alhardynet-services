@@ -68,10 +68,6 @@ resource "aws_ecs_task_definition" "this" {
           value = "mesh/${data.terraform_remote_state.ecs.outputs.appmesh_name}/virtualNode/${local.service_name}-node"
         },
         {
-          name  = "AWS_XRAY_DAEMON_ADDRESS"
-          value = "xray-daemon:2000"
-        },
-        {
           name  = "ENABLE_ENVOY_XRAY_TRACING"
           value = "1"
         },
