@@ -24,7 +24,7 @@ resource "aws_security_group" "this" {
 
 module "aws-ecs-service" {
   source        = "app.terraform.io/bytebox/aws-ecs-service/module"
-  version       = "0.0.3"
+  version       = "0.0.6"
   app_mesh_name = data.terraform_remote_state.ecs.outputs.appmesh_name
   aws_region    = var.aws_region
   cluster_name  = data.terraform_remote_state.ecs.outputs.ecs_cluster_name
@@ -60,4 +60,18 @@ module "aws-ecs-service" {
   app_mesh_virtual_gateway_match_prefix = "/"
   backend_virtual_service               = [data.terraform_remote_state.customers_service.outputs.virtual_service_name]
   vpc_id                                = data.terraform_remote_state.vpc.outputs.vpc_id
+  autoscaling = {
+    min_capacity              = 1
+    max_capacity              = 4
+    cooldown_scale_up         = 60
+    cooldown_scale_down       = 180
+    metric_aggregation_type   = "Average"
+    adjustment_type           = "ChangeInCapacity"
+    max_cpu_evaluation_period = "3"
+    max_cpu_period            = "60"
+    max_cpu_threshold         = "85"
+    min_cpu_evaluation_period = "3"
+    min_cpu_period            = "60"
+    min_cpu_threshold         = "10"
+  }
 }

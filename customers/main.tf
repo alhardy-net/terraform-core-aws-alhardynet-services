@@ -24,7 +24,7 @@ resource "aws_security_group" "this" {
 
 module "aws-ecs-service" {
   source        = "app.terraform.io/bytebox/aws-ecs-service/module"
-  version       = "0.0.3"
+  version       = "0.0.6"
   app_mesh_name = data.terraform_remote_state.ecs.outputs.appmesh_name
   aws_region    = var.aws_region
   cluster_name  = data.terraform_remote_state.ecs.outputs.ecs_cluster_name
@@ -53,4 +53,5 @@ module "aws-ecs-service" {
     desired_count      = var.desired_count
   }
   vpc_id = data.terraform_remote_state.vpc.outputs.vpc_id
+  autoscaling = var.autoscaling
 }
