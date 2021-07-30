@@ -13,6 +13,18 @@ variable "aws_assume_role" {
   description = "The AWS Role to assume for the AWS account"
 }
 
+variable "cpu" {
+  type = number
+}
+
+variable "memory" {
+  type = number
+}
+
+variable "desired_count" {
+  type = number
+}
+
 # Terraform Cloud
 variable "TFC_WORKSPACE_SLUG" {
   type        = string
