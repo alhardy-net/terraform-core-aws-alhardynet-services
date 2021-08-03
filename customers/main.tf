@@ -1,4 +1,4 @@
-resource "aws_security_group" "this" {
+resource "aws_security_group" "service" {
   name        = "${local.service_name}-SG"
   description = "Security group for customer api to communicate in and out"
   vpc_id      = data.terraform_remote_state.vpc.outputs.vpc_id
@@ -18,7 +18,8 @@ resource "aws_security_group" "this" {
   }
 
   tags = {
-    Name = "${local.service_name}-SG"
+    Name               = "${local.service_name}-SG"
+    TerraformWorkspace = var.TFC_WORKSPACE_SLUG
   }
 }
 
@@ -39,7 +40,7 @@ module "aws-ecs-service" {
       }
     ]
   }
-  security_group_ids               = [aws_security_group.this.id]
+  security_group_ids               = [aws_security_group.service.id]
   service_discovery_namespace_id   = data.terraform_remote_state.ecs.outputs.namespace_id
   service_discovery_namespace_name = data.terraform_remote_state.ecs.outputs.service_discovery_private_dns_namespace_name
   service_name                     = local.service_name
@@ -52,6 +53,6 @@ module "aws-ecs-service" {
     memory             = var.memory
     desired_count      = var.desired_count
   }
-  vpc_id = data.terraform_remote_state.vpc.outputs.vpc_id
+  vpc_id      = data.terraform_remote_state.vpc.outputs.vpc_id
   autoscaling = var.autoscaling
 }

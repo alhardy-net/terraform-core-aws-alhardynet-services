@@ -43,6 +43,12 @@ variable "autoscaling" {
   })
 }
 
+variable "postgres_allocated_storage" {
+  description = "The postgres RDS instances allocated storage in gigabytes"
+  type = number
+  default = 5
+}
+
 # Terraform Cloud
 variable "TFC_WORKSPACE_SLUG" {
   type        = string
