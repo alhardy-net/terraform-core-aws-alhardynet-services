@@ -91,23 +91,23 @@ resource "aws_iam_role_policy_attachment" "enhanced_monitoring" {
 }
 
 resource "aws_db_instance" "postgres" {
-  identifier                            = local.db_identifier
-  instance_class                        = local.db_instance_class
-  allocated_storage                     = var.postgres_allocated_storage
-  engine                                = "postgres"
-  engine_version                        = "13.3"
-  username                              = local.db_creds.username
-  password                              = local.db_creds.password
-  port                                  = 5432
-  multi_az                              = true
-  maintenance_window                    = "Sun:00:00-Sun:03:00"
-  backup_window                         = "03:00-06:00"
-  enabled_cloudwatch_logs_exports       = ["postgresql", "upgrade"]
-  db_subnet_group_name                  = aws_db_subnet_group.postgres.name
-  vpc_security_group_ids                = [aws_security_group.postgres.id]
-  parameter_group_name                  = aws_db_parameter_group.postgres.name
-  publicly_accessible                   = false
-  skip_final_snapshot                   = true
+  identifier                      = local.db_identifier
+  instance_class                  = local.db_instance_class
+  allocated_storage               = var.postgres_allocated_storage
+  engine                          = "postgres"
+  engine_version                  = "13.3"
+  username                        = local.db_creds.username
+  password                        = local.db_creds.password
+  port                            = 5432
+  multi_az                        = true
+  maintenance_window              = "Sun:00:00-Sun:03:00"
+  backup_window                   = "03:00-06:00"
+  enabled_cloudwatch_logs_exports = ["postgresql", "upgrade"]
+  db_subnet_group_name            = aws_db_subnet_group.postgres.name
+  vpc_security_group_ids          = [aws_security_group.postgres.id]
+  parameter_group_name            = aws_db_parameter_group.postgres.name
+  publicly_accessible             = false
+  skip_final_snapshot             = true
 
   performance_insights_enabled          = true
   performance_insights_retention_period = 7

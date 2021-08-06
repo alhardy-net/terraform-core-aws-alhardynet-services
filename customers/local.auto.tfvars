@@ -1,10 +1,10 @@
 aws_region      = "ap-southeast-2"
 aws_account_id  = "171101346296"
 aws_assume_role = "TerraformAccessRole"
-cpu             = 256
-memory          = 512
-desired_count   = 1
-autoscaling = {
+customers_api_cpu             = 256
+customers_api_memory          = 512
+customers_api_desired_count   = 1
+customers_api_autoscaling = {
   min_capacity              = 1
   max_capacity              = 4
   cooldown_scale_up         = 60

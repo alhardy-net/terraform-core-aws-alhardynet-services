@@ -3,23 +3,27 @@ resource "aws_security_group" "this" {
   description = "Security group for service to communicate in and out"
   vpc_id      = data.terraform_remote_state.vpc.outputs.vpc_id
 
-  ingress {
-    from_port   = 80
-    protocol    = "TCP"
-    to_port     = 80
-    cidr_blocks = [data.terraform_remote_state.vpc.outputs.vpc_cidr_block]
-  }
-
-  egress {
-    from_port   = 0
-    protocol    = "-1"
-    to_port     = 0
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
   tags = {
     Name = "${local.service_name}-SG"
   }
+}
+
+resource "aws_security_group_rule" "bff_api_ports_ingress" {
+  type              = "ingress"
+  from_port         = 80
+  to_port           = 80
+  protocol          = "TCP"
+  cidr_blocks       = [data.terraform_remote_state.vpc.outputs.vpc_cidr_block, data.terraform_remote_state.hub.outputs.vpc_cidr_block]
+  security_group_id = aws_security_group.this.id
+}
+
+resource "aws_security_group_rule" "bff_api_ports_egress" {
+  type              = "egress"
+  from_port         = 0
+  to_port           = 0
+  protocol          = "-1"
+  cidr_blocks       = ["0.0.0.0/0"]
+  security_group_id = aws_security_group.this.id
 }
 
 module "aws-ecs-service" {

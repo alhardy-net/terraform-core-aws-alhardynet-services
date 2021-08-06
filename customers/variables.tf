@@ -13,19 +13,19 @@ variable "aws_assume_role" {
   description = "The AWS Role to assume for the AWS account"
 }
 
-variable "cpu" {
+variable "customers_api_cpu" {
   type = number
 }
 
-variable "memory" {
+variable "customers_api_memory" {
   type = number
 }
 
-variable "desired_count" {
+variable "customers_api_desired_count" {
   type = number
 }
 
-variable "autoscaling" {
+variable "customers_api_autoscaling" {
   description = "Service autoscaling configuration"
   type = object({
     min_capacity              = number
@@ -45,8 +45,8 @@ variable "autoscaling" {
 
 variable "postgres_allocated_storage" {
   description = "The postgres RDS instances allocated storage in gigabytes"
-  type = number
-  default = 5
+  type        = number
+  default     = 5
 }
 
 # Terraform Cloud

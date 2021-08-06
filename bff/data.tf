@@ -8,6 +8,16 @@ data "terraform_remote_state" "vpc" {
   }
 }
 
+data "terraform_remote_state" "hub" {
+  backend = "remote"
+  config = {
+    organization = "bytebox"
+    workspaces = {
+      name = "core-aws-alhardynet-networking-hub-prod"
+    }
+  }
+}
+
 data "terraform_remote_state" "ecs" {
   backend = "remote"
   config = {
