@@ -54,8 +54,8 @@ module "aws-ecs-service" {
   subnets                          = data.terraform_remote_state.vpc.outputs.private_application_subnets
   task_definition = {
     family             = local.task_definition_family
-    execution_role_arn = "arn:aws:iam::${var.aws_account_id}:role/EcsClusteralhardynetDefaultTaskRole"
-    task_role_arn      = "arn:aws:iam::${var.aws_account_id}:role/EcsClusteralhardynetDefaultTaskRole"
+    execution_role_arn = data.terraform_remote_state.ecs.outputs.default_task_execution_role_arn
+    task_role_arn      = aws_iam_role.ecs_task_role.arn
     cpu                = var.cpu
     memory             = var.memory
     desired_count      = var.desired_count
