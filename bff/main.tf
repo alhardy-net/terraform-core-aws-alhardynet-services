@@ -60,7 +60,7 @@ module "aws-ecs-service" {
     memory             = var.memory
     desired_count      = var.desired_count
   }
-  app_mesh_virtual_gateway_name         = data.terraform_remote_state.ecs.outputs.appmesh_virtual_gateway_name
+  app_mesh_virtual_gateway_name         = data.terraform_remote_state.virtualgateway.outputs.appmesh_virtual_gateway_name
   app_mesh_virtual_gateway_match_prefix = "/"
   backend_virtual_service               = [data.terraform_remote_state.customers_service.outputs.virtual_service_name]
   vpc_id                                = data.terraform_remote_state.vpc.outputs.vpc_id

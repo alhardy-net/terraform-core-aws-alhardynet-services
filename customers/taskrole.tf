@@ -28,7 +28,7 @@ data "aws_iam_policy_document" "allow_read_customers_secrets" {
       "secretsmanager:DescribeSecret",
       "secretsmanager:ListSecretVersionIds"
     ]
-    resources = ["arn:aws:secretsmanager:::secret:customers/customer-api-GnFM04"]
+    resources = ["arn:aws:secretsmanager:${var.aws_region}:${data.aws_caller_identity.current.account_id}:secret:customers/customer-api-GnFM04"]
   }
 }
 

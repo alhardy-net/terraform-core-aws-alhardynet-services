@@ -27,23 +27,3 @@ data "terraform_remote_state" "ecs" {
     }
   }
 }
-
-data "terraform_remote_state" "customers_service" {
-  backend = "remote"
-  config = {
-    organization = "bytebox"
-    workspaces = {
-      name = "core-aws-alhardynet-services-customers-${local.env}"
-    }
-  }
-}
-
-data "terraform_remote_state" "virtualgateway" {
-  backend = "remote"
-  config = {
-    organization = "bytebox"
-    workspaces = {
-      name = "core-aws-alhardynet-services-virtual-gateway-${local.env}"
-    }
-  }
-}
