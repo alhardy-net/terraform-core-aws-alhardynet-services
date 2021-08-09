@@ -91,26 +91,46 @@ resource "aws_iam_role_policy_attachment" "enhanced_monitoring" {
 }
 
 resource "aws_db_instance" "postgres" {
-  identifier                      = local.db_identifier
-  instance_class                  = local.db_instance_class
-  allocated_storage               = var.postgres_allocated_storage
-  engine                          = "postgres"
-  engine_version                  = "13.3"
-  username                        = local.db_creds.username
-  password                        = local.db_creds.password
-  port                            = 5432
-  multi_az                        = true
-  maintenance_window              = "Sun:00:00-Sun:03:00"
-  backup_window                   = "03:00-06:00"
-  enabled_cloudwatch_logs_exports = ["postgresql", "upgrade"]
-  db_subnet_group_name            = aws_db_subnet_group.postgres.name
-  vpc_security_group_ids          = [aws_security_group.postgres.id]
-  parameter_group_name            = aws_db_parameter_group.postgres.name
-  publicly_accessible             = false
-  skip_final_snapshot             = true
+  identifier                          = local.db_identifier
+  instance_class                      = local.db_instance_class
+  allocated_storage                   = var.postgres_allocated_storage
+  engine                              = "postgres"
+  engine_version                      = "13.3"
+  username                            = local.db_creds.username
+  password                            = local.db_creds.password
+  iam_database_authentication_enabled = true
+  port                                = 5432
+  multi_az                            = true
+  maintenance_window                  = "Sun:00:00-Sun:03:00"
+  backup_window                       = "03:00-06:00"
+  enabled_cloudwatch_logs_exports     = ["postgresql", "upgrade"]
+  db_subnet_group_name                = aws_db_subnet_group.postgres.name
+  vpc_security_group_ids              = [aws_security_group.postgres.id]
+  parameter_group_name                = aws_db_parameter_group.postgres.name
+  publicly_accessible                 = false
+  skip_final_snapshot                 = true
 
   performance_insights_enabled          = true
   performance_insights_retention_period = 7
   monitoring_interval                   = 60
   monitoring_role_arn                   = aws_iam_role.enhanced_monitoring.arn
+}
+
+data "aws_iam_policy_document" "rds-connect" {
+  statement {
+    effect    = "Allow"
+    actions   = ["rds-db:connect"]
+    resources = ["arn:aws:rds-db:${var.aws_region}:${data.aws_caller_identity.current.account_id}:dbuser:${aws_db_instance.postgres.resource_id}/iam_db_user"]
+  }
+}
+
+resource "aws_iam_policy" "policy" {
+  name        = "CustomersRdsConnectPolicy"
+  description = "Allow connect to customers DB"
+  policy = data.aws_iam_policy_document.rds-connect.json
+}
+
+resource "aws_iam_role_policy_attachment" "ecs_task_rds_connect" {
+  role       = aws_iam_role.ecs_task_role.name
+  policy_arn = aws_iam_policy.policy.arn
 }
