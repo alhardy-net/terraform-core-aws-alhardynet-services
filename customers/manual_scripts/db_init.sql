@@ -9,7 +9,6 @@ ON ALL TABLES IN SCHEMA public
 TO rds_iam;
 
 ALTER DEFAULT PRIVILEGES
-    FOR ROLE rds_iam
     IN SCHEMA public
     GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO "iam_db_user";
 
