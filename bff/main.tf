@@ -40,10 +40,6 @@ module "aws-ecs-service" {
       {
         name  = "ASPNETCORE_ENVIRONMENT"
         value = local.aspnet_core_env
-      },
-      {
-        name  = "CustomerApiBaseAddress"
-        value = "http://customers-api.alhardynet.local"
       }
     ]
   }
