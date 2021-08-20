@@ -9,8 +9,8 @@ data "aws_iam_policy_document" "assume_role_policy" {
   }
 }
 
-data "aws_secretsmanager_secret" "customer-api" {
-  name = "customers/customer-api"
+data "aws_secretsmanager_secret" "customers-shared" {
+  name = "customers/shared"
 }
 
 data "aws_iam_policy_document" "allow_read_customers_secrets" {
@@ -32,7 +32,7 @@ data "aws_iam_policy_document" "allow_read_customers_secrets" {
       "secretsmanager:DescribeSecret",
       "secretsmanager:ListSecretVersionIds"
     ]
-    resources = [data.aws_secretsmanager_secret.customer-api.arn]
+    resources = [data.aws_secretsmanager_secret.customers-shared.arn]
   }
 }
 
