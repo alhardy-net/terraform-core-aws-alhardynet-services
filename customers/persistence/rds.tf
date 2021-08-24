@@ -134,3 +134,8 @@ resource "aws_iam_role_policy_attachment" "api_ecs_task_rds_connect" {
   role       = data.terraform_remote_state.customer_api.outputs.ecs_task_role_name
   policy_arn = aws_iam_policy.rds_connect_policy.arn
 }
+
+resource "aws_iam_role_policy_attachment" "worker_ecs_task_rds_connect" {
+  role       = data.terraform_remote_state.customer_worker.outputs.ecs_task_role_name
+  policy_arn = aws_iam_policy.rds_connect_policy.arn
+}

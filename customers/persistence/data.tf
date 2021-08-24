@@ -29,3 +29,13 @@ data "terraform_remote_state" "customer_api" {
     }
   }
 }
+
+data "terraform_remote_state" "customer_worker" {
+  backend = "remote"
+  config = {
+    organization = "bytebox"
+    workspaces = {
+      name = "core-aws-alhardynet-services-customers-worker-${local.env}"
+    }
+  }
+}
