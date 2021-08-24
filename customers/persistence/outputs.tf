@@ -1,8 +1,3 @@
-output "virtual_service_name" {
-  value       = module.ecs_service_customers_api.virtual_service_name
-  description = "The name of customers api virtual service"
-}
-
 output "rds_hostname" {
   description = "RDS instance hostname"
   value       = aws_db_instance.postgres.address

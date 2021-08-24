@@ -116,7 +116,7 @@ resource "aws_db_instance" "postgres" {
   monitoring_role_arn                   = aws_iam_role.enhanced_monitoring.arn
 }
 
-data "aws_iam_policy_document" "rds-connect" {
+data "aws_iam_policy_document" "rds_connect" {
   statement {
     effect    = "Allow"
     actions   = ["rds-db:connect"]
@@ -124,13 +124,13 @@ data "aws_iam_policy_document" "rds-connect" {
   }
 }
 
-resource "aws_iam_policy" "policy" {
+resource "aws_iam_policy" "rds_connect_policy" {
   name        = "CustomersRdsConnectPolicy"
   description = "Allow connect to customers DB"
-  policy = data.aws_iam_policy_document.rds-connect.json
+  policy = data.aws_iam_policy_document.rds_connect.json
 }
 
-resource "aws_iam_role_policy_attachment" "ecs_task_rds_connect" {
-  role       = aws_iam_role.ecs_task_role.name
-  policy_arn = aws_iam_policy.policy.arn
+resource "aws_iam_role_policy_attachment" "api_ecs_task_rds_connect" {
+  role       = data.terraform_remote_state.customer_api.outputs.ecs_task_role_name
+  policy_arn = aws_iam_policy.rds_connect_policy.arn
 }
