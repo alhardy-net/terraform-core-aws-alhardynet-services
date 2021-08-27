@@ -23,6 +23,11 @@ variable "xray_image" {
   description = "The xray image to use for tracing on virtual gateway"
 }
 
+variable "fluent_bit_loki_image" {
+  description = "The image used for the loki sidecar"
+  type        = string
+}
+
 variable "virtual_gateway" {
   type        = object({ cpu = number, memory = number, desired_count = number, max_percent = number, min_percent = number })
   description = "Configuration for the virtual gateway task and service"

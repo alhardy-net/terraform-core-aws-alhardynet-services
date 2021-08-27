@@ -28,7 +28,7 @@ resource "aws_security_group_rule" "bff_api_ports_egress" {
 
 module "aws-ecs-service" {
   source        = "app.terraform.io/bytebox/aws-ecs-service/module"
-  version       = "0.0.7"
+  version       = "0.1.0"
   app_mesh_name = data.terraform_remote_state.ecs.outputs.appmesh_name
   aws_region    = var.aws_region
   cluster_name  = data.terraform_remote_state.ecs.outputs.ecs_cluster_name
@@ -61,4 +61,5 @@ module "aws-ecs-service" {
   backend_virtual_service               = [data.terraform_remote_state.customers_service.outputs.virtual_service_name]
   vpc_id                                = data.terraform_remote_state.vpc.outputs.vpc_id
   autoscaling = var.autoscaling
+  env = local.env
 }

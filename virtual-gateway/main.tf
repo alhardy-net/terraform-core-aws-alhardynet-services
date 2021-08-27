@@ -1,3 +1,15 @@
+data "aws_secretsmanager_secret_version" "platform" {
+  secret_id = "platform/shared"
+}
+
+locals {
+  platform_creds   = jsondecode(data.aws_secretsmanager_secret_version.platform.secret_string)
+  loki_url         = "https://${local.platform_creds.grafana_userid}:${local.platform_creds.grafana_apikey}@logs-prod-us-central1.grafana.net/loki/api/v1/push"
+  loki_remove_keys = "container_id,ecs_task_arn"
+  loki_label_keys  = "container_name,ecs_task_definition,source,ecs_cluster"
+  loki_labels      = "{ecs_service=\"${local.service_name}\", env=\"${local.env}\"}"
+}
+
 resource "aws_cloudwatch_log_group" "this" {
   name              = "/ecs/${local.service_name}"
   retention_in_days = 90
@@ -75,12 +87,14 @@ resource "aws_ecs_task_definition" "virtual_gateway" {
         }
       ],
       logConfiguration = {
-        logDriver     = "awslogs",
-        secretOptions = null
+        logDriver = "awsfirelens"
         options = {
-          awslogs-group         = "/ecs/${local.service_name}"
-          awslogs-region        = "ap-southeast-2",
-          awslogs-stream-prefix = "ecs"
+          Name       = "loki",
+          Url        = local.loki_url
+          Labels     = local.loki_labels
+          RemoveKeys = local.loki_remove_keys
+          LabelKeys  = local.loki_label_keys
+          LineFormat = "key_value"
         }
       }
     },
@@ -125,14 +139,37 @@ resource "aws_ecs_task_definition" "virtual_gateway" {
         ]
       },
       logConfiguration = {
-        logDriver     = "awslogs",
-        secretOptions = null
+        logDriver = "awsfirelens"
         options = {
-          awslogs-group         = "/ecs/${local.service_name}"
-          awslogs-region        = "ap-southeast-2",
-          awslogs-stream-prefix = "ecs"
+          Name       = "loki",
+          Url        = local.loki_url
+          Labels     = local.loki_labels
+          RemoveKeys = local.loki_remove_keys
+          LabelKeys  = local.loki_label_keys
+          LineFormat = "key_value"
         }
       }
+    },
+    {
+      essential = true,
+      image     = var.fluent_bit_loki_image,
+      name      = "log_router",
+      firelensConfiguration : {
+        type = "fluentbit",
+        options : {
+          enable-ecs-log-metadata = "true"
+        }
+      },
+      logConfiguration : {
+        logDriver : "awslogs",
+        options : {
+          awslogs-group         = "/ecs/${local.service_name}",
+          awslogs-region        = var.aws_region,
+          awslogs-create-group  = "true",
+          awslogs-stream-prefix = "firelens"
+        }
+      },
+      memoryReservation : 50
     }
   ])
 }
