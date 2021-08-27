@@ -89,7 +89,7 @@ resource "aws_ecs_task_definition" "virtual_gateway" {
       logConfiguration = {
         logDriver = "awsfirelens"
         options = {
-          Name       = "loki",
+          Name       = "grafana-loki",
           Url        = local.loki_url
           Labels     = local.loki_labels
           RemoveKeys = local.loki_remove_keys
@@ -141,7 +141,7 @@ resource "aws_ecs_task_definition" "virtual_gateway" {
       logConfiguration = {
         logDriver = "awsfirelens"
         options = {
-          Name       = "loki",
+          Name       = "grafana-loki",
           Url        = local.loki_url
           Labels     = local.loki_labels
           RemoveKeys = local.loki_remove_keys

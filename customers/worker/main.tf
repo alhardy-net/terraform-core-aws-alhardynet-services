@@ -29,7 +29,7 @@ resource "aws_security_group_rule" "customers_worker_ports_egress" {
 
 module "ecs_service_customers_worker" {
   source        = "app.terraform.io/bytebox/aws-ecs-service/module"
-  version       = "0.1.0"
+  version       = "0.2.0"
   app_mesh_name = data.terraform_remote_state.ecs.outputs.appmesh_name
   aws_region    = var.aws_region
   cluster_name  = data.terraform_remote_state.ecs.outputs.ecs_cluster_name
