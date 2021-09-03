@@ -41,6 +41,10 @@ module "ecs_service_customers_worker" {
       {
         name  = "DOTNET_ENVIRONMENT"
         value = local.dotnet_core_env
+      },
+      {
+        name = "SERVICE_NAME"
+        value = local.customers_worker_service_name
       }
     ]
   }

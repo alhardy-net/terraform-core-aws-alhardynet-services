@@ -41,6 +41,10 @@ module "ecs_service_customers_api" {
       {
         name  = "ASPNETCORE_ENVIRONMENT"
         value = local.aspnet_core_env
+      },
+      {
+        name = "SERVICE_NAME"
+        value = local.customers_api_service_name
       }
     ]
   }
