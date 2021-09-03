@@ -40,6 +40,10 @@ module "aws-ecs-service" {
       {
         name  = "ASPNETCORE_ENVIRONMENT"
         value = local.aspnet_core_env
+      },
+      {
+        name = "SERVICE_NAME"
+        value = local.service_name
       }
     ]
   }
