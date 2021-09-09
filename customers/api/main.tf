@@ -47,7 +47,7 @@ module "ecs_service_customers_api" {
         value = local.customers_api_service_name
       },
       {
-        name = "RabbitMQ_ENDPOINT"
+        name = "RABBITMQ_ENDPOINT"
         value = data.terraform_remote_state.rabbitmq.outputs.endpoint.0
       }
     ]
