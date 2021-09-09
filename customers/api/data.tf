@@ -29,3 +29,13 @@ data "terraform_remote_state" "ecs" {
     }
   }
 }
+
+data "terraform_remote_state" "rabbitmq" {
+  backend = "remote"
+  config = {
+    organization = "bytebox"
+    workspaces = {
+      name = "core-aws-alhardynet-platform-rabbitmq-${local.env}"
+    }
+  }
+}
